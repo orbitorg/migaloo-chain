@@ -137,6 +137,10 @@ import (
 	feeburnmodulekeeper "github.com/White-Whale-Defi-Platform/migaloo-chain/v4/x/feeburn/keeper"
 	feeburnmoduletypes "github.com/White-Whale-Defi-Platform/migaloo-chain/v4/x/feeburn/types"
 
+	feeabsmodule "github.com/osmosis-labs/fee-abstraction/v7/x/feeabs"
+	feeabskeeper "github.com/osmosis-labs/fee-abstraction/v7/x/feeabs/keeper"
+	feeabstypes "github.com/osmosis-labs/fee-abstraction/v7/x/feeabs/types"
+
 	// Note: please do your research before using this in production app, this is a demo and not an officially
 	// supported IBC team implementation. It has no known issues, but do your own research before using it.
 
@@ -224,6 +228,7 @@ var (
 		ica.AppModuleBasic{},
 		ibcfee.AppModuleBasic{},
 		feeburnmodule.AppModuleBasic{},
+		feeabsmodule.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -242,6 +247,7 @@ var (
 		tokenfactorytypes.ModuleName:        {authtypes.Minter, authtypes.Burner},
 		alliancemoduletypes.ModuleName:      {authtypes.Minter, authtypes.Burner},
 		alliancemoduletypes.RewardsPoolName: nil,
+		feeabstypes.ModuleName:              nil,
 	}
 )
 
@@ -296,6 +302,8 @@ type MigalooApp struct {
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	FeeBurnKeeper         feeburnmodulekeeper.Keeper
 
+	FeeabsKeeper feeabskeeper.Keeper
+
 	// IBC hooks
 	IBCHooksKeeper *ibchookskeeper.Keeper
 	TransferStack  *ibcporttypes.IBCModule
@@ -307,6 +315,7 @@ type MigalooApp struct {
 	ScopedTransferKeeper      capabilitykeeper.ScopedKeeper
 	ScopedIBCFeeKeeper        capabilitykeeper.ScopedKeeper
 	ScopedWasmKeeper          capabilitykeeper.ScopedKeeper
+	ScopedFeeabsKeeper        capabilitykeeper.ScopedKeeper
 
 	// Middleware wrapper
 	Ics20WasmHooks   *ibchooks.WasmHooks
@@ -364,6 +373,7 @@ func NewMigalooApp(
 		alliancemoduletypes.StoreKey, consensusparamtypes.StoreKey, crisistypes.StoreKey,
 		ibchookstypes.StoreKey,
 		feeburnmoduletypes.StoreKey,
+		feeabstypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -404,6 +414,7 @@ func NewMigalooApp(
 	scopedICAControllerKeeper := app.CapabilityKeeper.ScopeToModule(icacontrollertypes.SubModuleName)
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasmtypes.ModuleName)
+	scopedFeeabsKeeper := app.CapabilityKeeper.ScopeToModule(feeabstypes.ModuleName)
 
 	// add keepers
 	app.AccountKeeper = authkeeper.NewAccountKeeper(
@@ -530,6 +541,19 @@ func NewMigalooApp(
 		authtypes.NewModuleAddress(govtypes.ModuleName),
 	)
 
+	app.FeeabsKeeper = feeabskeeper.NewKeeper(
+		appCodec,
+		app.keys[feeabstypes.StoreKey],
+		app.GetSubspace(feeabstypes.ModuleName),
+		app.StakingKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.TransferKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		app.ScopedFeeabsKeeper,
+	)
+
 	// Register the proposal types
 	// Deprecated: Avoid adding new handlers, instead use the new proposal flow
 	// by granting the governance module the right to execute the message.
@@ -540,7 +564,8 @@ func NewMigalooApp(
 		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(&app.UpgradeKeeper)).
 		AddRoute(ibcclienttypes.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper)).
 		AddRoute(alliancemoduletypes.RouterKey, alliancemodule.NewAllianceProposalHandler(app.AllianceKeeper)).
-		AddRoute(feeburnmoduletypes.RouterKey, feeburnmodule.NewFeeBurnProposalHandler(app.FeeBurnKeeper))
+		AddRoute(feeburnmoduletypes.RouterKey, feeburnmodule.NewFeeBurnProposalHandler(app.FeeBurnKeeper)).
+		AddRoute(feeabstypes.RouterKey, feeabsmodule.NewHostZoneProposal(app.FeeabsKeeper))
 
 	// Configure the hooks keeper
 	hooksKeeper := ibchookskeeper.NewKeeper(
@@ -714,7 +739,8 @@ func NewMigalooApp(
 		AddRoute(icahosttypes.SubModuleName, icaHostStack).
 		AddRoute(ibctransfertypes.ModuleName, *app.TransferStack).
 		AddRoute(wasmtypes.ModuleName, wasmStack).
-		AddRoute(icqtypes.ModuleName, icqStack)
+		AddRoute(icqtypes.ModuleName, icqStack).
+		AddRoute(feeabstypes.ModuleName, feeabsmodule.NewIBCModule(appCodec, app.FeeabsKeeper))
 
 	app.IBCKeeper.SetRouter(ibcRouter)
 
@@ -780,6 +806,7 @@ func NewMigalooApp(
 		icq.NewAppModule(app.ICQKeeper, app.GetSubspace(icqtypes.ModuleName)),
 		alliancemodule.NewAppModule(appCodec, app.AllianceKeeper, app.StakingKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry, app.GetSubspace(alliancemoduletypes.ModuleName)),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
+		feeabsmodule.NewAppModule(appCodec, app.FeeabsKeeper),
 		ica.NewAppModule(&app.ICAControllerKeeper, &app.ICAHostKeeper),
 		tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AccountKeeper, app.BankKeeper, app.GetSubspace(tokenfactorytypes.ModuleName)),
 		packetforward.NewAppModule(app.PacketForwardKeeper, app.GetSubspace(packetforwardtypes.ModuleName)),
@@ -812,6 +839,7 @@ func NewMigalooApp(
 		feeburnmoduletypes.ModuleName,
 		// additional non simd modules
 		ibctransfertypes.ModuleName,
+		feeabstypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
@@ -846,6 +874,7 @@ func NewMigalooApp(
 		packetforwardtypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
+		feeabstypes.ModuleName,
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		ibchookstypes.ModuleName,
@@ -885,6 +914,7 @@ func NewMigalooApp(
 		packetforwardtypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
+		feeabstypes.ModuleName,
 		icatypes.ModuleName,
 		ibcfeetypes.ModuleName,
 		tokenfactorytypes.ModuleName,
@@ -933,6 +963,7 @@ func NewMigalooApp(
 			FeeburnKeeper:     &app.FeeBurnKeeper,
 			WasmConfig:        &wasmConfig,
 			TXCounterStoreKey: keys[wasmtypes.StoreKey],
+			FeeabsKeeper:      app.FeeabsKeeper,
 		},
 	)
 	if err != nil {
@@ -963,6 +994,7 @@ func NewMigalooApp(
 	app.ScopedICAHostKeeper = scopedICAHostKeeper
 	app.ScopedICAControllerKeeper = scopedICAControllerKeeper
 	app.ScopedICQKeeper = scopedICQKeeper
+	app.ScopedFeeabsKeeper = scopedFeeabsKeeper
 
 	// set the contract keeper for the Ics20WasmHooks
 	app.Ics20WasmHooks.ContractKeeper = &app.WasmKeeper
@@ -1047,6 +1079,10 @@ func (app *MigalooApp) BlockedModuleAccountAddrs() map[string]bool {
 	for _, acc := range stringMapKeys(maccPerms) {
 		// don't blacklist alliance module account, so that it can ibc transfer tokens
 		if acc == alliancemoduletypes.ModuleName {
+			continue
+		}
+		// don't blacklist feeabs module account, so that it can hold ibc tokens
+		if acc == feeabstypes.ModuleName {
 			continue
 		}
 		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
@@ -1237,6 +1273,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	paramsKeeper.Subspace(packetforwardtypes.ModuleName).WithKeyTable(packetforwardtypes.ParamKeyTable())
 	paramsKeeper.Subspace(alliancemoduletypes.ModuleName).WithKeyTable(alliancemoduletypes.ParamKeyTable())
 	paramsKeeper.Subspace(feeburnmoduletypes.ModuleName)
+	paramsKeeper.Subspace(feeabstypes.ModuleName)
 
 	return paramsKeeper
 }
