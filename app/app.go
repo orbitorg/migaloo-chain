@@ -551,7 +551,7 @@ func NewMigalooApp(
 		app.TransferKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
-		app.ScopedFeeabsKeeper,
+		scopedFeeabsKeeper,
 	)
 
 	// Register the proposal types
