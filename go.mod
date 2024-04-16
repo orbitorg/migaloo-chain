@@ -53,6 +53,7 @@ require (
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 v7.1.3
 	github.com/cosmos/ibc-apps/modules/async-icq/v7 v7.1.1
 	github.com/golang/protobuf v1.5.4
+	github.com/osmosis-labs/fee-abstraction/v7 v7.0.0-20240408070113-b8791624f3be
 	gopkg.in/yaml.v2 v2.4.0
 )
 
