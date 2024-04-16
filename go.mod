@@ -53,6 +53,7 @@ require (
 	github.com/cosmos/ibc-apps/middleware/packet-forward-middleware/v7 v7.1.3
 	github.com/cosmos/ibc-apps/modules/async-icq/v7 v7.1.1
 	github.com/golang/protobuf v1.5.4
+	github.com/osmosis-labs/fee-abstraction/v7 v7.0.0-20240408070113-b8791624f3be
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -156,7 +157,6 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/osmosis-labs/fee-abstraction/v7 v7.0.0-20240408070113-b8791624f3be // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/petermattis/goid v0.0.0-20230317030725-371a4b8eda08 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
