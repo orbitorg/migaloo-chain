@@ -1228,7 +1228,7 @@ func (app *MigalooApp) setupUpgradeHandlers() {
 	if upgradeInfo.Name == v45.UpgradeName {
 		storeUpgrades := &storetypes.StoreUpgrades{
 			Added: []string{
-				feeabstypes.ModuleName,
+				feeabstypes.StoreKey,
 			},
 			Deleted: []string{},
 		}
