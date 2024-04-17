@@ -9,13 +9,13 @@
     "keyring-backend": "test",
     "default-denom": "uwhale",
     "gas-adjustment": 1.5,
-    "gas-prices": "100uwhale",
+    "gas-prices": "10000uwhale",
     "coin-type": 118,
     "debug": true,
     "timeout": "10s",
     "output-format": "json",
     "sign-mode": "direct",
     "trusting-period": "330h",
-    "gas": 900000
+    "min-gas-amount": 100000
   }
 }

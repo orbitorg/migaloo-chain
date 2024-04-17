@@ -60,7 +60,8 @@ echo '{
 
 
 echo "Creating an alliance with the denom $IBC_DENOM"
-PROPOSAL_HEIGHT=$($BINARY tx gov submit-proposal $CHAIN_DIR/create-alliance.json --from=$VAL_WALLET_2 --home $CHAIN_DIR/test-2 --node tcp://localhost:26657 -o json --keyring-backend test  --fees 60000$UWHALE_DENOM  -y | jq -r '.height')
+
+PROPOSAL_HEIGHT=$($BINARY tx gov submit-proposal $CHAIN_DIR/create-alliance.json --from=$VAL_WALLET_2 --home $CHAIN_DIR/test-2 --node tcp://localhost:26657 -o json --keyring-backend test  --fees 600000$UWHALE_DENOM --gas 500000  -y -o json | jq -r '.height')
 sleep 3
 
 
@@ -82,7 +83,7 @@ done
 
 echo "Delegating $AMOUNT_TO_DELEGATE to the alliance $IBC_DENOM"
 VAL_ADDR=$($BINARY query staking validators --output json | jq .validators[0].operator_address --raw-output)
-DELEGATE_RES=$($BINARY tx alliance delegate $VAL_ADDR $AMOUNT_TO_DELEGATE$IBC_DENOM --from=node0 --from=$VAL_WALLET_2 --home $CHAIN_DIR/test-2 --keyring-backend=test  --fees 60000$UWHALE_DENOM --chain-id=test-2 -o json -y)
+DELEGATE_RES=$($BINARY tx alliance delegate $VAL_ADDR $AMOUNT_TO_DELEGATE$IBC_DENOM --from=node0 --from=$VAL_WALLET_2 --home $CHAIN_DIR/test-2 --keyring-backend=test  --fees 600000$UWHALE_DENOM --gas 500000 --chain-id=test-2 -o json -y)
 sleep 3
 DELEGATIONS=$($BINARY query alliance delegation $VAL_WALLET_2 $VAL_ADDR $IBC_DENOM --chain-id test-2 --node tcp://localhost:26657 -o json | jq -r '.delegation.balance.amount')
 if [[ "$DELEGATIONS" == "0" ]]; then

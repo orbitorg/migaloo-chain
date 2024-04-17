@@ -102,4 +102,4 @@ fi
 sed -i'' -e 's/max_body_bytes = /max_body_bytes = 1/g' "$CONFIG"
 
 # Start the node (remove the --pruning=nothing flag if historical queries are not needed)
-migalood start --pruning=nothing  --minimum-gas-prices=0.0001uwhale --rpc.laddr tcp://0.0.0.0:26657 --home $HOMEDIR
+migalood start --pruning=nothing --p2p.pex=false --minimum-gas-prices=0.0001uwhale --rpc.laddr tcp://0.0.0.0:26657 --home $HOMEDIR
