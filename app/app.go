@@ -1236,9 +1236,7 @@ func (app *MigalooApp) setupUpgradeHandlers() {
 
 	if upgradeInfo.Name == v46.UpgradeName {
 		storeUpgrades := &storetypes.StoreUpgrades{
-			Added: []string{
-				feeabstypes.StoreKey,
-			},
+			Added:   []string{},
 			Deleted: []string{},
 		}
 		// configure store loader that checks if version == upgradeHeight and applies store upgrades
