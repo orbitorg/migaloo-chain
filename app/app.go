@@ -601,7 +601,6 @@ func NewMigalooApp(
 		app.IBCKeeper.ChannelKeeper, &app.IBCKeeper.PortKeeper,
 		app.AccountKeeper, scopedICAHostKeeper, app.MsgServiceRouter(),
 	)
-	app.ICAHostKeeper.WithQueryRouter(app.BaseApp.GRPCQueryRouter())
 
 	icaModule := ica.NewAppModule(nil, &app.ICAHostKeeper)
 	app.ICAHostKeeper.WithQueryRouter(app.GRPCQueryRouter())
