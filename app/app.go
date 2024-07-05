@@ -602,6 +602,7 @@ func NewMigalooApp(
 		app.AccountKeeper, scopedICAHostKeeper, app.MsgServiceRouter(),
 	)
 	icaModule := ica.NewAppModule(nil, &app.ICAHostKeeper)
+	app.ICAHostKeeper.WithQueryRouter(app.GRPCQueryRouter())
 
 	app.ICAControllerKeeper = icacontrollerkeeper.NewKeeper(
 		appCodec,
