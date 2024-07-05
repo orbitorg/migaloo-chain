@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	cosmossdk.io/math v1.3.0
-	cosmossdk.io/simapp v0.0.0-20230602123434-616841b9704d
+	cosmossdk.io/simapp v0.0.0-20230608160436-666c345ad23d
 	cosmossdk.io/tools/rosetta v0.2.1
 	github.com/CosmWasm/wasmd v0.45.0
 	github.com/cometbft/cometbft v0.37.5
@@ -23,7 +23,7 @@ require (
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0
 	github.com/terra-money/alliance v0.3.6
-	github.com/terra-money/core/v2 v2.5.0
+	github.com/terra-money/core/v2 v2.11.4
 	google.golang.org/grpc v1.64.0
 )
 
@@ -219,8 +219,6 @@ replace (
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	github.com/terra-money/alliance => github.com/terra-money/alliance v0.3.7-0.20240523140934-a8125ca364d6
 
-	// use terra core 2.5.0
-	github.com/terra-money/core/v2 => github.com/notional-labs/terra-core/v2 v2.5.3
 	// stick with compatible version or x/exp in v0.47.x line
 	golang.org/x/exp => golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb
 	// stick with compatible version of rapid in v0.47.x line

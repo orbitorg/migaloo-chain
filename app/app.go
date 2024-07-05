@@ -115,8 +115,8 @@ import (
 	icqtypes "github.com/cosmos/ibc-apps/modules/async-icq/v7/types"
 	ibcmock "github.com/cosmos/ibc-go/v7/testing/mock"
 
-	terracustombank "github.com/terra-money/core/v2/custom/bank"
-	custombankkeeper "github.com/terra-money/core/v2/custom/bank/keeper"
+	terracustombank "github.com/terra-money/core/v2/x/bank"
+	custombankkeeper "github.com/terra-money/core/v2/x/bank/keeper"
 
 	ibchooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7"
 	ibchookskeeper "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7/keeper"
@@ -127,8 +127,8 @@ import (
 	alliancemodulekeeper "github.com/terra-money/alliance/x/alliance/keeper"
 	alliancemoduletypes "github.com/terra-money/alliance/x/alliance/types"
 
+	customquerier "github.com/terra-money/core/v2/app/custom_queriers"
 	"github.com/terra-money/core/v2/x/tokenfactory"
-	bindings "github.com/terra-money/core/v2/x/tokenfactory/bindings"
 	tokenfactorykeeper "github.com/terra-money/core/v2/x/tokenfactory/keeper"
 	tokenfactorytypes "github.com/terra-money/core/v2/x/tokenfactory/types"
 
@@ -472,7 +472,7 @@ func NewMigalooApp(
 		keys[tokenfactorytypes.StoreKey],
 		maccPerms,
 		app.AccountKeeper,
-		app.BankKeeper,
+		&app.BankKeeper,
 		app.DistrKeeper,
 		appCodec,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
@@ -631,7 +631,7 @@ func NewMigalooApp(
 	// The last arguments can contain custom message handlers, and custom query handlers,
 	// if we want to allow any custom callbacks
 	availableCapabilities := "iterator,staking,stargate,cosmwasm_1_1,cosmwasm_1_2,cosmwasm_1_3,cosmwasm_1_4,token_factory"
-	wasmOpts = append(bindings.RegisterCustomPlugins(&app.BankKeeper.BaseKeeper, &app.TokenFactoryKeeper), wasmOpts...)
+	wasmOpts = append(customquerier.RegisterCustomPlugins(&app.BankKeeper.BaseKeeper, &app.TokenFactoryKeeper, &app.AllianceKeeper), wasmOpts...)
 
 	app.WasmKeeper = wasmkeeper.NewKeeper(
 		appCodec,
