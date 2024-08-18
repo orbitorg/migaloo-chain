@@ -160,7 +160,7 @@ import (
 	v45 "github.com/White-Whale-Defi-Platform/migaloo-chain/v4/app/upgrades/v4_1_5"
 	v46 "github.com/White-Whale-Defi-Platform/migaloo-chain/v4/app/upgrades/v4_1_6"
 	v420 "github.com/White-Whale-Defi-Platform/migaloo-chain/v4/app/upgrades/v4_2_0"
-	v421 "github.com/White-Whale-Defi-Platform/migaloo-chain/v4/app/upgrades/v4_2_1"
+	v422 "github.com/White-Whale-Defi-Platform/migaloo-chain/v4/app/upgrades/v4_2_2"
 	"github.com/rakyll/statik/fs"
 
 	// unnamed import of statik for swagger UI support
@@ -1194,8 +1194,8 @@ func (app *MigalooApp) setupUpgradeHandlers() {
 		),
 	)
 	app.UpgradeKeeper.SetUpgradeHandler(
-		v421.UpgradeName,
-		v421.CreateUpgradeHandler(
+		v422.UpgradeName,
+		v422.CreateUpgradeHandler(
 			app.mm,
 			app.StakingKeeper,
 			app.configurator,
@@ -1214,7 +1214,7 @@ func (app *MigalooApp) setupUpgradeHandlers() {
 		return
 	}
 
-	if upgradeInfo.Name == v421.UpgradeName {
+	if upgradeInfo.Name == v422.UpgradeName {
 		storeUpgrades := &storetypes.StoreUpgrades{
 			Added:   []string{},
 			Deleted: []string{},
