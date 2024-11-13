@@ -43,7 +43,6 @@ then
     GOBIN="$ROOT/_build/new" go install -mod=readonly ./...
 fi
 
-exit 0 
 # run old node
 if [[ "$OSTYPE" == "darwin"* ]]; then
     screen -L -dmS node1 bash scripts/run-node.sh _build/old/migalood $DENOM --Logfile $HOME/log-screen.txt
