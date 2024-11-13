@@ -30,10 +30,9 @@ func (s *UpgradeTestSuite) MockBankBalances() {
 		sdk.NewCoin(v4.Denom, math.NewInt(MockDeadContractBalance)),
 	)
 
-	// Replace FundAccount with BankKeeper's MintCoins and SendCoinsFromModuleToAccount
+	// Mint coins to the dead contract
 	err := s.App.BankKeeper.MintCoins(s.Ctx, "mint", coins)
 	s.Require().NoError(err)
-
 	err = s.App.BankKeeper.SendCoinsFromModuleToAccount(s.Ctx, "mint", deadContractAddr, coins)
 	s.Require().NoError(err)
 
@@ -59,7 +58,7 @@ func (s *UpgradeTestSuite) TestUpgrade() {
 	contractBalance := s.App.BankKeeper.GetAllBalances(s.Ctx, deadContractAddr)
 	s.Require().Equal(int64(0), contractBalance.AmountOf(v4.Denom).Int64())
 
-	// Foundation balance get drained
+	// Foundation balance is increased
 	foundationAddr := sdk.MustAccAddressFromBech32(v4.Foundation)
 	foundationBalance := s.App.BankKeeper.GetAllBalances(s.Ctx, foundationAddr)
 	s.T().Logf("balance: %v", foundationBalance)
