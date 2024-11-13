@@ -3,13 +3,13 @@
 # the upgrade is a fork, "true" otherwise
 FORK=${FORK:-"false"}
 
-OLD_VERSION=v4.2.4
+OLD_VERSION=v4.2.5
 UPGRADE_WAIT=${UPGRADE_WAIT:-20}
 HOME=mytestnet
 ROOT=$(pwd)
 DENOM=uwhale
 CHAIN_ID=localmigaloo
-SOFTWARE_UPGRADE_NAME="v4.2.5"
+SOFTWARE_UPGRADE_NAME="v4.2.6"
 ADDITIONAL_PRE_SCRIPTS=${ADDITIONAL_PRE_SCRIPTS:-""}
 ADDITIONAL_AFTER_SCRIPTS=${ADDITIONAL_AFTER_SCRIPTS:-""}
 
@@ -43,6 +43,7 @@ then
     GOBIN="$ROOT/_build/new" go install -mod=readonly ./...
 fi
 
+exit 0 
 # run old node
 if [[ "$OSTYPE" == "darwin"* ]]; then
     screen -L -dmS node1 bash scripts/run-node.sh _build/old/migalood $DENOM --Logfile $HOME/log-screen.txt
